@@ -9,7 +9,7 @@ public class TestCal
 {
 	/*
 	 * Doesn't seem to matter if smaller fields are uninitd -
-	 * assume they are initd to same value.
+	 * assume they are initialised to same value.
 	 * So, can use getInstance() with no initing.
 	 */
 	@Test
@@ -32,10 +32,4 @@ public class TestCal
 			Assert.assertEquals(0, cal1.compareTo(cal2));
 			Assert.assertEquals(-1, cal1.compareTo(cal3));
 	}
-    
-    public static void main(String argv[])
-    {
-        TestCal tc = new TestCal();
-        tc.doit();
-    }
 }

@@ -8,9 +8,9 @@ import java.util.Set;
  *
  * It includes your notes about what happened and what was agreed.
  */
-public class PastMeetingImpl extends MeetingImpl 
+public class PastMeetingImpl extends MeetingImpl implements PastMeeting
 {
-	String delim;
+	private String notes;
 	
 	/**
 	 * never called, only here because the compiler wants this if 
@@ -29,32 +29,16 @@ public class PastMeetingImpl extends MeetingImpl
 	 * (i.e. constructs a past meeting and removes the future meeting
 	 * from any collections.)
 	 * 
-	 * @param fmi
+	 * @param fm
 	 * @param notes
+	 * @param id
 	 */
-	public PastMeetingImpl(FutureMeetingImpl fmi, String notes) 
+	public PastMeetingImpl(FutureMeetingImpl fm, String notes, int id) 
 	{
-		super(fmi.getContacts(), fmi.getDate());
+		super(fm.getContacts(), fm.getDate(), id);
 		addNotes(notes);
-		
-		// now REMOVE the future meeting.  Create FutureMeeting.remove()
-		// a fake destructor.
 	}
 
-	private String notes;
-	
-	/**
-	 * Default constructor.
-	 * 
-	 * Explicitly sets the initial value of notes to the empty string.
-	 */
-	// NO, won't instantiate a PastMeeting directly.
-	// In fact, don't you 
-	// public PastMeetingImpl()
-	// {
-	// 		notes = new String("");
-	// }
-	
 	/**
 	 * Returns the notes from the meeting.
 	 *
@@ -62,7 +46,7 @@ public class PastMeetingImpl extends MeetingImpl
 	 *
 	 * @return the notes from the meeting.
 	 */
-	String getNotes()
+	public String getNotes()
 	{
 		return notes;
 	}
@@ -71,30 +55,16 @@ public class PastMeetingImpl extends MeetingImpl
 	{
 		this.notes = notes;
 	}
-	
-	public String toString()
+
+	private String _toString(String delim)
 	{
-		delim = ContactManagerImpl.COMMASPACE;
-		String ret = Integer.toString(this.getId()) + delim + this.getDate() + delim + this.getNotes() + delim;
+		String ret = Integer.toString(this.getId()) + delim + this.getDate() + delim;
 		
 		// inefficient but perhaps acceptable here
 		for(Contact contact : this.getContacts())
 		{
 			ret += delim + contact.getId();
 		}
-		return ret;
-	}
-	
-	public String toCSV()
-	{
-		delim = ContactManagerImpl.CSVDELIM;
-		String ret = Integer.toString(this.getId()) + delim + this.getDate() + delim + this.getNotes() + delim;
-		
-		// inefficient but perhaps acceptable here
-		for(Contact contact : this.getContacts())
-		{
-			ret += delim + contact.getId();
-		}
-		return ret;
+		return ret;		
 	}
 }

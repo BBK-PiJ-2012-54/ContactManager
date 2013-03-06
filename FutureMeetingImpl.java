@@ -6,7 +6,7 @@ import java.util.Set;
 /**
  * A meeting to be held in the future
  */
-public class FutureMeetingImpl extends MeetingImpl
+public class FutureMeetingImpl extends MeetingImpl implements FutureMeeting
 {
 	// explicit constructor needed.
 	public FutureMeetingImpl(Set<Contact> contacts, Calendar date) 
