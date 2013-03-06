@@ -106,7 +106,20 @@ public class TestContactManager extends TestSetUp
 			Assert.fail("sleep was interrupted, please rerun tests.");
 		}
 		
-		PastMeeting pm = cmInst.getPastMeeting(meetID);
+		Meeting pm = cmInst.getPastMeeting(meetID);
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void testGetPastMeetingAsFuture()
+	{
+		// create a new Past Meeting
+		cmInst.addNewPastMeeting(testContactSet, pastDate, "notes");
+		
+		// need this to get hold of it
+		Meeting pm = ((ContactManagerImpl)cmInst).getLastMeetingAddedForTesting();
+		
+		// check that you can't get it as a FutureMeeting
+		Meeting fm = cmInst.getFutureMeeting(pm.getId());
 	}
 	
 	@Test
@@ -131,6 +144,13 @@ public class TestContactManager extends TestSetUp
 			Assert.assertEquals("added as NewPastMeeting", list.get(0).getNotes());
 			Assert.assertEquals("future meeting convd to Past", list.get(1).getNotes());			
 			Assert.assertEquals(2, list.size());
+		}
+		
+		cSet = cmInst.getContacts(6);
+		for(Contact testContact : cSet)
+		{
+			List<PastMeeting> list = cmInst.getPastMeetingList(testContact);
+			Assert.assertEquals(0, list.size());
 		}
 	}
 
@@ -259,5 +279,29 @@ public class TestContactManager extends TestSetUp
 		Assert.assertEquals(9, m.getDate().get(Calendar.HOUR));
 		
 		cmInst.flush();
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void testGetFutureMeetingInvalidContact()
+	{
+		cmInst.getFutureMeetingList(contactInval);
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void testGetFutureMeetingBadIDContact()
+	{
+		cmInst.getFutureMeetingList(contactBadID);
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void testGetPastMeetingInvalidContact()
+	{
+		cmInst.getPastMeetingList(contactInval);
+	}
+
+	@Test (expected = NullPointerException.class)
+	public void testGetContactByNullName()
+	{
+		Set<Contact> set = cmInst.getContacts((String)null);
 	}
 }

@@ -9,12 +9,15 @@ import java.util.Set;
  */
 public class TestSetUp
 {
-	public static Calendar pastDate;
-	public static Calendar futureDate;
+	// these fields are used only by the test classes that extend this class
+	protected Calendar pastDate;
+	protected Calendar futureDate;	
+	protected Set<Contact> testContactSet;
+	protected Set<Contact> anotherContactSet;
+	protected Set<Contact> invalidContactSet;
+	protected Contact contactInval;
+	protected Contact contactBadID;
 	
-	public static Set<Contact> testContactSet;
-	public static Set<Contact> invalidContactSet;
-		
 	public void testSetUp()
 	{
 		setUpContacts();
@@ -57,10 +60,15 @@ public class TestSetUp
 		 * with the public interface methods.  But here I can create an
 		 * instance without adding it to the list that I store.
 		 */
-		Contact contactInval = new ContactImpl("I don't exist");
+		contactInval = ContactImpl.getInvalidContactImplForTesting("I don't exist", 0);
 		contactInval.addNotes("and I'm not notes");
 
+		contactBadID = ContactImpl.getInvalidContactImplForTesting("I don't exist either", -999);
+		contactBadID.addNotes("and I'm not notes");
+		
 		testContactSet = cm.getContacts(0, 1, 2, 3, 4, 5);
+		
+		anotherContactSet = cm.getContacts(5, 6, 7);
 
 		invalidContactSet = cm.getContacts(1, 2, 3, 4, 5);
 		invalidContactSet.add(contactInval); // the one that's not in the contact list

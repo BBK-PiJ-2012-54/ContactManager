@@ -15,7 +15,6 @@ public class ContactImpl implements Contact, Comparable<ContactImpl>
 	private int id;
 	private String name;
 	private String note;
-	private TreeSet<Meeting> meetingSet; // new data member
 
 	/**
 	 * creates a contact with a name, assigning the next ID
@@ -26,7 +25,6 @@ public class ContactImpl implements Contact, Comparable<ContactImpl>
 	{
 		this.name = name;
 		this.id = nextId++;
-		meetingSet = new TreeSet<Meeting>(MeetingComparator.getInstance());
 	}
 	
 	/**
@@ -60,21 +58,6 @@ public class ContactImpl implements Contact, Comparable<ContactImpl>
 	public String getNotes() 
 	{
 		return note;
-	}
-
-	/**
-	 * Returns the sorted set of meetings this contact will and did attend
-	 * 
-	 * @return sorted set of meetings, maybe empty.
-	 */
-	public TreeSet<Meeting> getMeetingSet() 
-	{
-		return meetingSet;
-	}
-
-	public void addMeeting(Meeting m)
-	{
-		meetingSet.add(m);
 	}
 	
 	/**
@@ -115,4 +98,24 @@ public class ContactImpl implements Contact, Comparable<ContactImpl>
 	{
 		return _toString(ContactManagerImpl.CSVDELIM);
 	}	
+	
+	/*************************************************************
+	 * The following method(s), for testing only, should be removed
+	 * before release. 
+	 *************************************************************/
+	
+	/**
+	 * Create an invalid contact
+	 * 
+	 * @param name
+	 * @param id
+	 * 
+	 * @return a contact not in the List or Set, and with the given ID
+	 */
+	public static ContactImpl getInvalidContactImplForTesting(String name, int id)
+	{
+		ContactImpl c = new ContactImpl(name);
+		c.id = id;
+		return c;
+	}
 }

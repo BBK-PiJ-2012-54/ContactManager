@@ -31,7 +31,7 @@ public class ContactManagerImpl implements ContactManager
 
 	public static final String COMMASPACE = new String(", ");
 	public static final String CSVDELIM = new String("%");
-	public static final String SAVEFILE = "ContactManager.dat";
+	public static final String SAVEFILE = "contacts.txt";
 	
 	// this holds all contacts that have been created
 	private static List<Contact> contactList = new ArrayList<Contact>();
@@ -54,11 +54,6 @@ public class ContactManagerImpl implements ContactManager
 	{
 		// restore any contacts and meetings from file
 		restoreFromFile();
-	}
-	
-	public static ContactManager getInstance()
-	{
-		return new ContactManagerImpl();
 	}
 	
 	private static void restoreFromFile()
@@ -192,13 +187,9 @@ public class ContactManagerImpl implements ContactManager
 		
 		for(Contact contact : contacts)
 		{
-			try
+			if(!isContactValid(contact))
 			{
-				contactList.get(contact.getId());
-			}
-			catch(IndexOutOfBoundsException iobe)
-			{
-				throw new IllegalArgumentException("contact id " + contact.getId() + " is unknown");
+				throw new IllegalArgumentException("contact id " + contact.getId() + " is invalid");
 			}
 		}
 		
@@ -206,12 +197,7 @@ public class ContactManagerImpl implements ContactManager
 		meetingList.add(fm);
 		
 		meetingSet.add(fm);
-
-		for(Contact c : contacts)
-		{
-			((ContactImpl)c).addMeeting(fm);
-		}
-
+		
 		return fm.getId();
 	}
 
@@ -236,6 +222,11 @@ public class ContactManagerImpl implements ContactManager
 		{
 				throw new IllegalArgumentException("Meeting is in the future");
 		}
+		if(!(m instanceof PastMeeting))
+		{
+			throw new IllegalArgumentException("Meeting is not a Past Meeting");
+		}
+		
 		return (PastMeeting)m;
 	}
 
@@ -260,7 +251,12 @@ public class ContactManagerImpl implements ContactManager
 		{
 				throw new IllegalArgumentException("Meeting is in the past");
 		}
-		
+
+		if(!(m instanceof FutureMeeting))
+		{
+			throw new IllegalArgumentException("Meeting is not a Future Meeting");
+		}
+
 		return (FutureMeeting)m;
 	}
 
@@ -293,19 +289,9 @@ public class ContactManagerImpl implements ContactManager
 	 */
 	public List<Meeting> getFutureMeetingList(Contact contact) throws IllegalArgumentException
 	{
-		if(contact == null ||
-		   contact.getId() >= meetingList.size() ||
-		   contact.getId()  < 0)
+		if(!isContactValid(contact))
 		{
-			throw new IllegalArgumentException("Contact does not exist");
-		}
-
-		
-		// contact supplied might have a valid id, but not be the one we added 
-		Set<Contact> set = getContacts(contact.getId());
-		if(!set.contains(contact))
-		{
-			throw new IllegalArgumentException("Contact does not exist");			
+			throw new IllegalArgumentException("contact id " + contact.getId() + " is invalid");
 		}
 		
 		now.setTime(new Date());
@@ -354,6 +340,25 @@ public class ContactManagerImpl implements ContactManager
 		return new ArrayList<Meeting>(meetingSet.subSet(startMarker, endMarker));
 	}
 
+	private boolean isContactValid(Contact contact)
+	{
+		if(contact == null ||
+				contact.getId() >= contactList.size() ||
+				contact.getId() < 0)
+		{
+			return false;
+		}
+		
+		// contact supplied might have a valid id, but not be the one we added 
+		Contact listContact = contactList.get(contact.getId());
+		if(listContact != contact)
+		{
+			return false;			
+		}
+
+		return true;
+	}
+	
 	/**
 	 * Returns the list of past meetings in which this contact has participated.
 	 *
@@ -368,9 +373,7 @@ public class ContactManagerImpl implements ContactManager
 	@SuppressWarnings("unchecked")
 	public List<PastMeeting> getPastMeetingList(Contact contact) throws IllegalArgumentException
 	{
-		if(contact == null ||
-				contact.getId() >= contactList.size() ||
-				contact.getId()  < 0)
+		if(!isContactValid(contact))
 		{
 			throw new IllegalArgumentException("Contact does not exist");
 		}
@@ -431,13 +434,9 @@ public class ContactManagerImpl implements ContactManager
 
 		for(Contact contact : contacts)
 		{
-			try
+			if(!isContactValid(contact))
 			{
-				contactList.get(contact.getId());
-			}
-			catch(IndexOutOfBoundsException iobe)
-			{
-				throw new IllegalArgumentException("contact id " + contact.getId() + " is unknown");
+				throw new IllegalArgumentException("contact id " + contact.getId() + " is invalid");
 			}
 		}
 		
@@ -448,11 +447,6 @@ public class ContactManagerImpl implements ContactManager
 		meetingList.add(pm);
 
 		meetingSet.add(pm);
-
-		for(Contact c : contacts)
-		{
-			((ContactImpl)c).addMeeting(pm);
-		}
 	}
 
 	/**
@@ -546,6 +540,11 @@ public class ContactManagerImpl implements ContactManager
 				if(contact == null)
 					throw new IllegalArgumentException("Contact ID " + id + " does not exist");
 
+				if(!isContactValid(contact))
+				{
+					throw new IllegalArgumentException("Contact ID " + id + " does not exist");
+				}
+
 				contactSet.add(contact);
 			}
 			catch (IndexOutOfBoundsException iobe)
@@ -619,6 +618,11 @@ public class ContactManagerImpl implements ContactManager
 		}
 	}
 	
+	/*************************************************************
+	 * The following methods, for testing only, should be removed
+	 * before release. 
+	 *************************************************************/
+	
 	/**
 	 * method used ONLY for unit tests, to be commented out when tested.
 	 */
@@ -637,5 +641,15 @@ public class ContactManagerImpl implements ContactManager
 	public void restoreFromFileForTesting()
 	{
 		restoreFromFile();
+	}
+	
+	/**
+	 * ONLY for unit tests.  Returns the last meeting created.
+	 * 
+	 * @return last Meeting created
+	 */
+	public Meeting getLastMeetingAddedForTesting()
+	{
+		return meetingList.get(meetingList.size() - 1);
 	}
 }
